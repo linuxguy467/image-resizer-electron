@@ -5,7 +5,7 @@
   "description": "App to resize image dimensions",
   "main": "main.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "electron ."
   },
   "repository": {
     "type": "git",
@@ -16,5 +16,10 @@
   "bugs": {
     "url": "https://github.com/linuxguy467/image-resizer-electron/issues"
   },
-  "homepage": "https://github.com/linuxguy467/image-resizer-electron#readme"
+  "homepage": "https://github.com/linuxguy467/image-resizer-electron#readme",
+  "dependencies": {
+    "electron": "^21.1.1",
+    "resize-img": "^2.0.0",
+    "toastify-js": "^1.12.0"
+  }
 }
