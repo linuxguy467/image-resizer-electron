@@ -22,6 +22,11 @@ function createMainWindow() {
     title: "Image Resizer",
     width: isDev ? 1000 : 500,
     height: 600,
+    webPreferences: {
+      contextIsolation: true,
+      nodeIntegration: true,
+      preload: path.join(__dirname, "preload.js"),
+    },
   });
 
   if (isDev) {
@@ -60,36 +65,36 @@ app.whenReady().then(() => {
 
 // Menu template
 const menu = [
-    ...(isMac
-      ? [
-          {
-            label: app.name,
-            submenu: [
-              {
-                label: "About",
-                click: createAboutWindow
-              },
-            ],
-          },
-        ]
-      : []),
-    {
-      role: "fileMenu",
-    },
-    ...(!isMac
-      ? [
-          {
-            label: "Help",
-            submenu: [
-              {
-                label: "About",
-                click: createAboutWindow
-              },
-            ],
-          },
-        ]
-      : []),
-  ];
+  ...(isMac
+    ? [
+        {
+          label: app.name,
+          submenu: [
+            {
+              label: "About",
+              click: createAboutWindow,
+            },
+          ],
+        },
+      ]
+    : []),
+  {
+    role: "fileMenu",
+  },
+  ...(!isMac
+    ? [
+        {
+          label: "Help",
+          submenu: [
+            {
+              label: "About",
+              click: createAboutWindow,
+            },
+          ],
+        },
+      ]
+    : []),
+];
 
 app.on("window-all-closed", () => {
   if (!isMac) {
