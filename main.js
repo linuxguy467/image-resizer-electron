@@ -1,5 +1,7 @@
+const os = require("os");
+const fs = require("fs");
 const path = require("path");
-const { app, BrowserWindow, session, Menu } = require("electron");
+const { app, BrowserWindow, session, Menu, ipcMain } = require("electron");
 
 const isDev = process.env.NODE_ENV !== "production";
 const isMac = process.platform === "darwin";
@@ -95,6 +97,12 @@ const menu = [
       ]
     : []),
 ];
+
+// Respond to ipcRenderer resize
+ipcMain.on("image:resize", (e, options) => {
+  options.dest = path.join(os.homedir(), 'imageresizer');
+  console.log(options);
+});
 
 app.on("window-all-closed", () => {
   if (!isMac) {

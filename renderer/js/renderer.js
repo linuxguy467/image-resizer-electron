@@ -26,6 +26,32 @@ function loadImage(e) {
   outputPath.innerText = path.join(os.homedir(), "imageresizer");
 }
 
+// Send image data to main
+function sendImage(e) {
+  e.preventDefault();
+
+  const width = widthInput.value;
+  const height = heightInput.value;
+  const imgPath = img.files[0].path;
+
+  if (!img.files[0]) {
+    alertToast("Please upload an image");
+    return;
+  }
+
+  if (width === "" || height === "") {
+    alertToast("Please fill in a height and a width");
+    return;
+  }
+
+  // Send to main using ipcRenderer
+  ipcRenderer.send("image:resize", {
+    imgPath,
+    width,
+    height,
+  });
+}
+
 // Make sure file is image
 function isFileImage(file) {
   const acceptedImageTypes = ["image/gif", "image/png", "image/jpeg"];
@@ -46,3 +72,4 @@ function alertToast(message, isSuccess) {
 }
 
 img.addEventListener("change", loadImage);
+form.addEventListener("submit", sendImage);
