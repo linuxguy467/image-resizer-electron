@@ -52,6 +52,14 @@ function sendImage(e) {
   });
 }
 
+// Catch the image:done event
+ipcRenderer.on("image:done", () => {
+  alertToast(
+    `Image resized to ${widthInput.value} x ${heightInput.value}`,
+    true
+  );
+});
+
 // Make sure file is image
 function isFileImage(file) {
   const acceptedImageTypes = ["image/gif", "image/png", "image/jpeg"];

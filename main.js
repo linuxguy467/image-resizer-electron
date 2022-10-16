@@ -1,10 +1,20 @@
 const os = require("os");
 const fs = require("fs");
 const path = require("path");
-const { app, BrowserWindow, session, Menu, ipcMain } = require("electron");
+const resizeImg = require("resize-img");
+const {
+  app,
+  BrowserWindow,
+  session,
+  Menu,
+  ipcMain,
+  shell,
+} = require("electron");
 
 const isDev = process.env.NODE_ENV !== "production";
 const isMac = process.platform === "darwin";
+
+let mainWindow;
 
 // Set the Content Security Policy
 function setCSP() {
@@ -20,7 +30,7 @@ function setCSP() {
 
 // Create the main window
 function createMainWindow() {
-  const mainWindow = new BrowserWindow({
+  mainWindow = new BrowserWindow({
     title: "Image Resizer",
     width: isDev ? 1000 : 500,
     height: 600,
@@ -57,6 +67,9 @@ app.whenReady().then(() => {
   // Menu bar
   const mainMenu = Menu.buildFromTemplate(menu);
   Menu.setApplicationMenu(mainMenu);
+
+  // Remove mainWindow from mempry on close
+  mainWindow.on("closed", () => (mainWindow = null));
 
   app.on("activate", () => {
     if (BrowserWindow.getAllWindows().length === 0) {
@@ -100,9 +113,37 @@ const menu = [
 
 // Respond to ipcRenderer resize
 ipcMain.on("image:resize", (e, options) => {
-  options.dest = path.join(os.homedir(), 'imageresizer');
-  console.log(options);
+  options.dest = path.join(os.homedir(), "imageresizer");
+  resizeImage(options);
 });
+
+async function resizeImage({ imgPath, width, height, dest }) {
+  try {
+    const newPath = await resizeImg(fs.readFileSync(imgPath), {
+      width: +width,
+      height: +height,
+    });
+
+    // Create filename
+    const filename = path.basename(imgPath);
+
+    // Create dest folder if not exists
+    if (!fs.existsSync(dest)) {
+      fs.mkdirSync(dest);
+    }
+
+    // Write file to dest
+    fs.writeFileSync(path.join(dest, filename), newPath);
+
+    // Send success to renderer
+    mainWindow.webContents.send("image:done");
+
+    // Open dest folder
+    shell.openPath(dest);
+  } catch (error) {
+    console.error(error);
+  }
+}
 
 app.on("window-all-closed", () => {
   if (!isMac) {
